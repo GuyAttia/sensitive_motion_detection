@@ -1,5 +1,6 @@
 import numpy as np
 import cv2
+import matplotlib.pyplot as plt
 
 
 def find_interesting_points(image):
@@ -36,6 +37,11 @@ def load_video(video_path):
     vid = cv2.VideoCapture(video_path)
 
     images = []
+    # Check if camera opened successfully
+    if not vid.isOpened():
+        print("Error opening video stream or file")
+        return np.array(images)
+
     while vid.isOpened():
         ret, frame = vid.read()
         if ret:
@@ -53,7 +59,7 @@ def save_video(video, output_path):
     x = video.shape[1]
     y = video.shape[2]
 
-    fourcc = cv2.VideoWriter_fourcc(*'MJPG')
+    fourcc = cv2.VideoWriter_fourcc(*'MP4V')
     out = cv2.VideoWriter(output_path,
                           fourcc,
                           25,
@@ -72,3 +78,17 @@ def save_bag_of_interesting_points():
 
 def load_bag_of_interesting_points():
     pass
+
+
+def play_video_by_images(video, frame_rate=20):
+    """
+    Plot frames of the video
+    :param video: Video to play
+    :param frame_rate: Rate of frames to show
+    """
+    for frame_index in range(video.shape[0]):
+        if frame_index % frame_rate == 0:
+            fig, ax = plt.subplots(1, figsize=(15, 15))
+            ax.imshow(video[frame_index])
+            ax.set_title(f'Frame {frame_index}')
+            plt.show()
