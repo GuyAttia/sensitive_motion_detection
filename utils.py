@@ -12,12 +12,13 @@ def find_interesting_points(image):
     pass
 
 
-def load_image(image_path):
+def load_image(image_path, cmap = cv2.IMREAD_GRAYSCALE):
     """
     Load image from specified path
     :return: Image as a matrix
     """
-    pass
+    return cv2.imread(image_path, cmap)
+    
 
 
 def save_image(image, output_path):
@@ -71,6 +72,19 @@ def save_video(video, output_path):
 
     out.release()
 
+
+def generate_patch_histogram(patch, window_size):
+#     print(patch)
+    pixel_counts,_ = np.histogram(patch, range(257))
+    pixel_counts = pixel_counts / window_size**2
+    return pixel_counts
+
+def calculate_histograms_mean(hist_list, num_of_top_pixels = 50):
+    patch_hist_mean = []
+#     num_of_patches = len(hist_list)
+    for h in hist_list:
+        patch_hist_mean.append(h.argsort()[:num_of_top_pixels].mean())
+    return sum(patch_hist_mean) / len(patch_hist_mean)
 
 def save_bag_of_interesting_points():
     pass
