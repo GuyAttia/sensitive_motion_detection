@@ -63,3 +63,21 @@ def calculate_allowed_histograms_means(histograms_mean_list, bins):
         if len(cluster_values) > 0:
             allowed_hist_values.append(sum(cluster_values)/len(cluster_values))
     return allowed_hist_values
+
+def get_grids(image_x_grid, image_y_grid, object_location):
+    """
+    Calculate the object location in the image grid.
+    :return: A dictionary containing the middle of the object in he grid coordinates. 
+             The number of grid points the object is spread on.
+             The index of all grid points the object is spread on.
+    """
+    object_grid_details = {}
+    
+    object_x_grid = np.where((image_x_grid>object_location[0]) & (image_x_grid<object_location[1]))
+    object_y_grid = np.where((image_y_grid>object_location[2]) & (image_y_grid<object_location[3]))
+    
+    object_grid_details['middle_grid'] = [np.mean(object_x_grid), np.mean(object_y_grid)]
+    object_grid_details['grid_size'] = object_x_grid[0].shape[0] * object_y_grid[0].shape[0]
+    object_grid_details['grid_coordinates'] = {'X': object_x_grid, "Y": object_y_grid}
+    
+    return object_grid_details
