@@ -58,7 +58,6 @@ def calculate_allowed_histograms_means(histograms_mean_list, bins):
     """
     allowed_hist_values = []
     pixel_counts,indices = np.histogram(histograms_mean_list, bins)
-    print(indices)
     for idx in range(0,len(indices)-1):
         cluster_values = [val for val in histograms_mean_list if val>=indices[idx] and val<=indices[idx+1]]
         if len(cluster_values) > 0:
