@@ -133,5 +133,4 @@ dmypy.json
 node_modules
 
 /data/
-/papers/
 .DS_Store

@@ -1,7 +1,7 @@
 import numpy as np
 import cv2
 import matplotlib.pyplot as plt
-
+import glob
 
 def find_interesting_points(image):
     """
@@ -12,12 +12,15 @@ def find_interesting_points(image):
     pass
 
 
-def load_image(image_path):
+def load_images(images_path, cmap = cv2.IMREAD_GRAYSCALE):
     """
-    Load image from specified path
-    :return: Image as a matrix
+    Load images from specified path
+    :return: Images as a matrix
     """
-    pass
+    image_list = [cv2.imread(img, cmap) for img in glob.glob(f'{images_path}*.jpg')]
+    return image_list
+    
+    
 
 
 def save_image(image, output_path):
@@ -70,6 +73,7 @@ def save_video(video, output_path):
         out.write(video[i].astype(np.uint8))
 
     out.release()
+
 
 
 def save_bag_of_interesting_points():
