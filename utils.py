@@ -12,7 +12,7 @@ def find_interesting_points(image):
     pass
 
 
-def load_images(images_path, cmap = cv2.IMREAD_GRAYSCALE):
+def load_images(images_path, cmap = cv2.IMREAD_COLOR):
     """
     Load images from specified path
     :return: Images as a matrix
