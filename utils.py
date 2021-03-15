@@ -2,6 +2,8 @@ import numpy as np
 import cv2
 import matplotlib.pyplot as plt
 import glob
+from os import listdir, path
+
 
 def find_interesting_points(image):
     """
@@ -17,7 +19,8 @@ def load_images(images_path, cmap = cv2.IMREAD_COLOR):
     Load images from specified path
     :return: Images as a matrix
     """
-    image_list = [cv2.imread(img, cmap) for img in glob.glob(f'{images_path}*.jpg')]
+    image_list = [cv2.imread(path.join(images_path, img), cmap) for img in listdir(images_path)]
+    # image_list = [cv2.imread(img, cmap) for img in glob.glob(f'{images_path}*.jpg')]
     return image_list
     
     
@@ -77,14 +80,6 @@ def save_video(video, output_path, color=True):
     """
     x = video.shape[1]
     y = video.shape[2]
-    # if gray_scale:
-        # fourcc = cv2.VideoWriter_fourcc(*'MJPG')
-        # out = cv2.VideoWriter(output_path,
-        #                       fourcc,
-        #                       10,
-        #                       (y, x),
-        #                       0)
-    # else:
     fourcc = cv2.VideoWriter_fourcc(*'MP4V')
     out = cv2.VideoWriter(output_path,
                           fourcc,
@@ -96,7 +91,6 @@ def save_video(video, output_path, color=True):
         out.write(video[i].astype(np.uint8))
 
     out.release()
-
 
 
 def save_bag_of_interesting_points():

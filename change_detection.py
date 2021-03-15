@@ -74,20 +74,20 @@ def find_contours(v_fg_mask):
     """
     frames_contours = {}
     for frame_index, frame in enumerate(v_fg_mask):
-        frames_contours[frame_index] = {}
         contours, _ = cv2.findContours(frame, mode=cv2.RETR_EXTERNAL, method=cv2.CHAIN_APPROX_SIMPLE)
         # Find the contour with the largest area
         if contours:
+            frames_contours[frame_index] = {}
             two_largest_contours = sorted(contours, key=cv2.contourArea, reverse=True)[:2]
             c1 = two_largest_contours[0]
             x1, y1, w1, h1 = cv2.boundingRect(c1)
-            frames_contours[frame_index]['first'] = (x1, y1, w1, h1)
+            frames_contours[frame_index]['object1'] = [x1, y1, w1, h1]
 
             if len(two_largest_contours) > 1:
                 c2 = two_largest_contours[1]
                 x2, y2, w2, h2 = cv2.boundingRect(c2)
                 cv2.rectangle(frame, (x2, y2), (x2 + w2, y2 + h2), 255, 1)
-                frames_contours[frame_index]['second'] = (x2, y2, w2, h2)
+                frames_contours[frame_index]['object2'] = [x2, y2, w2, h2]
     return frames_contours
 
 
@@ -97,15 +97,15 @@ if __name__ == '__main__':
 
     univariate = True
     cut_percent = 100
-    predict = False
-    model_path = path.join('data', 'models', f'Pycharm-{univariate}-{cut_percent}.pickle')
+    predict = True
+    model_path = path.join('data', 'models', f'{univariate}-{cut_percent}.pickle')
     videos_dir_path = path.join('data', 'videos')
     videos_list = [video_name for video_name in listdir(videos_dir_path) if video_name.endswith('mp4')]
 
     for video_name in videos_list:
         print(f'Change detection start for video {video_name}')
         video_path = path.join('data', 'videos', f'{video_name}')
-        video_fg_path = path.join('data', 'foreground', f'Pycharm-{univariate}-{cut_percent}-{video_name}')
+        video_fg_path = path.join('data', 'foreground', f'Predict-Pycharm-{univariate}-{cut_percent}-{video_name}')
         video_mask_path = path.join('data', 'masks', f'Pycharm-{univariate}-{cut_percent}-{video_name}')
         video_mask_pp_path = path.join('data', 'masks', f'Pycharm-{univariate}-{cut_percent}_pp-{video_name}')
         if path.isfile(video_fg_path) and path.isfile(video_mask_path):
@@ -121,11 +121,12 @@ if __name__ == '__main__':
 
         v_fg_mask = change_detection(vid, k=4, t=0.7, alpha=2.5, learning_rate=0.05, k_warm_up=1, univariate=univariate,
                                      model_path=model_path, predict=predict)
-        save_video(v_fg_mask, video_mask_path, color=False)
+        # save_video(v_fg_mask, video_mask_path, color=False)
         v_fg_mask_pp = improve_foreground(v_fg_mask)
-        save_video(v_fg_mask_pp, video_mask_pp_path, color=False)
+        # save_video(v_fg_mask_pp, video_mask_pp_path, color=False)
         frames_contours = find_contours(v_fg_mask_pp)
 
         v_fg = recreate_video(orig_vid=colored_vid, v_fg_mask=v_fg_mask_pp)
         save_video(v_fg, video_fg_path)
         print(f'Change detection done for video {video_name}')
+        break

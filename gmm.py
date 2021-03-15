@@ -93,8 +93,8 @@ class KGmm:
 
     def calc_gauss_proba(self, gauss_index, frame):
         """
-
-        :param gauss_index:
+        Calculate the probability that the pixel is foreground using the specified Gaussian model inside the GMM.
+        :param gauss_index: Index of the Gaussian
         :param frame:
         :return:
         """
@@ -202,6 +202,11 @@ class GmmModel:
 
     @staticmethod
     def update_one_pixel(args):
+        """
+        Update the parameters of a single pixel GMM object with the new frame
+        :param args: Tuple of the GMM object of the pixel, and its frame intensity
+        :return: The foreground mask of the pixel
+        """
         single_pixel_obj, frame_pixel = args
         return single_pixel_obj.update_gmm(frame_pixel)
 
@@ -219,21 +224,11 @@ class GmmModel:
         frame_mask = np.array(frame_mask, dtype=np.uint8).reshape(self.x, self.y)
         return frame_mask
 
-    # def apply_old(self, frame):
-    #     """
-    #     Update the GMM model using new frame and return the frame foreground mask
-    #     :param frame: New frame to update the model by
-    #     """
-    #     frame_mask = np.zeros(frame.shape[:2], dtype=np.uint8)
-    #     for i in range(self.x):
-    #         for j in range(self.y):
-    #             frame_pixel = frame[i, j]
-    #             pixel_mask = self.pixels[i][j].update_gmm(frame_pixel)
-    #             frame_mask[i, j] = pixel_mask
-    #     return frame_mask
-
     def predict(self, frame):
         """
+        Predict if each pixel in the frame is foreground using its trained GMM object
+        :param frame: Current frame
+        :return: The foreground mask of the frame
         """
         frame_mask = np.zeros(frame.shape, dtype=np.uint8)
         for i in range(len(self.pixels)):
