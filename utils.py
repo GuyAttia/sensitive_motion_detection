@@ -21,7 +21,20 @@ def load_images(images_path, cmap = cv2.IMREAD_COLOR):
     return image_list
     
     
-
+def save_images_with_boxes(img, idx, approved_objects, detected_objects_location, out_dir = 'data/object_classification/'):
+    image_with_rectangle = img
+    for i in range(len(detected_objects_location)):
+        if i in approved_objects:#:f"object{i+1}" in detected_objects[0].keys():
+            image_with_rectangle = cv2.rectangle(image_with_rectangle, 
+                                                 (detected_objects_location[f'object{i+1}'][0],detected_objects_location[f'object{i+1}'][2]), 
+                                                 (detected_objects_location[f'object{i+1}'][1],detected_objects_location[f'object{i+1}'][3]), 
+                                                 (255,0,0), 2)
+        else:
+            image_with_rectangle = cv2.rectangle(image_with_rectangle, 
+                                                 (detected_objects_location[f'object{i+1}'][0],detected_objects_location[f'object{i+1}'][2]), 
+                                                 (detected_objects_location[f'object{i+1}'][1],detected_objects_location[f'object{i+1}'][3]), 
+                                                 (0,0,255), 2)
+    cv2.imwrite(f'{out_dir}/detected{idx}.jpg', image_with_rectangle)    
 
 def save_image(image, output_path):
     """

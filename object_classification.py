@@ -8,17 +8,19 @@ def match_with_approved_objects(num_of_objects, objects_info, approved_object_in
     """
     approved_objects = []
     for obj_idx in range(num_of_objects):
+        
         red = objects_info['RED'][obj_idx]
         green = objects_info['GREEN'][obj_idx]
         blue = objects_info['BLUE'][obj_idx]
         location = objects_info['location'][obj_idx]
         for approved_obj_idx in range(len(approved_object_info['RED'])):
-            if ((red <= (approved_object_info["RED"][approved_obj_idx] + 10) and red >= (approved_object_info["RED"][approved_obj_idx] - 10)) and \
-                (green <= (approved_object_info["GREEN"][approved_obj_idx] + 10) and red >= (approved_object_info["GREEN"][approved_obj_idx] - 10)) and \
-                (blue <= (approved_object_info["BLUE"][approved_obj_idx] + 10) and red >= (approved_object_info["BLUE"][approved_obj_idx] - 10))):
+            if ((red <= (approved_object_info["RED"][approved_obj_idx] + 20) and red >= (approved_object_info["RED"][approved_obj_idx] - 20)) and \
+                (green <= (approved_object_info["GREEN"][approved_obj_idx] + 20) and red >= (approved_object_info["GREEN"][approved_obj_idx] - 20)) and \
+                (blue <= (approved_object_info["BLUE"][approved_obj_idx] + 20) and red >= (approved_object_info["BLUE"][approved_obj_idx] - 20))):
                 if (location['grid_size'] <= (approved_object_info["location"][0]['grid_size'] + 35) and \
                     location['grid_size'] >= (approved_object_info["location"][0]['grid_size'] - 35)):
-                    approved_objects.append(obj_idx)
+                    if not obj_idx in approved_objects: approved_objects.append(obj_idx)
+            
     return approved_objects
                     
     
