@@ -45,9 +45,10 @@ def save_image(image, output_path):
     pass
 
 
-def load_video(video_path):
+def load_video(video_path, gray_scale=True):
     """
     Load video from specified path
+    :param gray_scale: Load as RGB or GrayScale
     :return: Video as a list of images
     """
     vid = cv2.VideoCapture(video_path)
@@ -61,12 +62,14 @@ def load_video(video_path):
     while vid.isOpened():
         ret, frame = vid.read()
         if ret:
-            images.append(frame.astype(np.int16))
+            if gray_scale:
+                frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+            images.append(frame.astype(np.uint8))
         else:
             return np.array(images)
 
 
-def save_video(video, output_path):
+def save_video(video, output_path, color=True):
     """
     Save a video
     :param video: Video to save as a list of images
@@ -74,13 +77,20 @@ def save_video(video, output_path):
     """
     x = video.shape[1]
     y = video.shape[2]
-
+    # if gray_scale:
+        # fourcc = cv2.VideoWriter_fourcc(*'MJPG')
+        # out = cv2.VideoWriter(output_path,
+        #                       fourcc,
+        #                       10,
+        #                       (y, x),
+        #                       0)
+    # else:
     fourcc = cv2.VideoWriter_fourcc(*'MP4V')
     out = cv2.VideoWriter(output_path,
                           fourcc,
                           25,
                           (y, x),
-                          True)
+                          color)
 
     for i in range(video.shape[0]):
         out.write(video[i].astype(np.uint8))
@@ -106,6 +116,30 @@ def play_video_by_images(video, frame_rate=20):
     for frame_index in range(video.shape[0]):
         if frame_index % frame_rate == 0:
             fig, ax = plt.subplots(1, figsize=(15, 15))
-            ax.imshow(video[frame_index])
+            ax.imshow(video[frame_index].astype(np.uint8))
             ax.set_title(f'Frame {frame_index}')
             plt.show()
+
+
+def resize(video, percent=50, gray_scale=True):
+    """
+    Changing video resolution
+    :param video: Video to resize
+    :param percent: Percent of the video to keep
+    :param gray_scale: If the video is in RGB or GrayScale
+    :return: Same video in different resolution
+    """
+    first_frame = video[0]
+    width = int(first_frame.shape[1] * percent / 100)
+    height = int(first_frame.shape[0] * percent / 100)
+    if gray_scale:
+        resized_video = np.zeros((video.shape[0], height, width), dtype=np.uint8)
+    else:
+        resized_video = np.zeros((video.shape[0], height, width, video.shape[3]), dtype=np.uint8)
+
+    for frame_index, frame in enumerate(video):
+        dim = (width, height)
+        resized_frame = cv2.resize(frame, dim, fx=255, fy=255, interpolation=cv2.INTER_CUBIC)
+        resized_video[frame_index] = resized_frame
+
+    return resized_video
