@@ -16,19 +16,6 @@ def change_detection(video, k, t, alpha, learning_rate, k_warm_up=20, univariate
     return v_fg_mask
 
 
-def openCV_change_detection(video):
-    # Todo: Remove before submission
-    fgbg = cv2.createBackgroundSubtractorMOG2()
-    v_fg_mask = np.zeros(video.shape[:3])
-
-    for frame_index in range(video.shape[0]):
-        frame = video[frame_index]
-        fg_mask = fgbg.apply(frame)
-        v_fg_mask[frame_index] = fg_mask
-
-    return v_fg_mask
-
-
 def improve_foreground(v_fg_mask):
     """
     Use postprocessing functions like erosion and dilation to improve the foreground mask
@@ -48,21 +35,6 @@ def improve_foreground(v_fg_mask):
         v_fg_mask_pp[frame_index] = frame_pp
 
     return v_fg_mask_pp
-
-
-def recreate_video(orig_vid, v_fg_mask):
-    """
-    """
-    v_fg = np.zeros(orig_vid.shape, dtype=np.uint8)
-
-    # Iterate over the video
-    for frame_index, (orig_frame, fg_mask_frame) in enumerate(zip(orig_vid, v_fg_mask)):
-        # Set the intensity for the pixel in the new video (black or the actual color from the video)
-        fg_mask_frame = np.repeat(fg_mask_frame[:, :, np.newaxis], 3, axis=2)
-        v_pp_frame = np.multiply(orig_frame, fg_mask_frame)
-        v_fg[frame_index] = v_pp_frame
-
-    return v_fg
 
 
 def find_contours(v_fg_mask):
@@ -89,44 +61,3 @@ def find_contours(v_fg_mask):
                 cv2.rectangle(frame, (x2, y2), (x2 + w2, y2 + h2), 255, 1)
                 frames_contours[frame_index]['object2'] = [x2, y2, w2, h2]
     return frames_contours
-
-
-if __name__ == '__main__':
-    from os import path, listdir
-    from utils import load_video, resize, save_video
-
-    univariate = True
-    cut_percent = 100
-    predict = True
-    model_path = path.join('data', 'models', f'{univariate}-{cut_percent}.pickle')
-    videos_dir_path = path.join('data', 'videos')
-    videos_list = [video_name for video_name in listdir(videos_dir_path) if video_name.endswith('mp4')]
-
-    for video_name in videos_list:
-        print(f'Change detection start for video {video_name}')
-        video_path = path.join('data', 'videos', f'{video_name}')
-        video_fg_path = path.join('data', 'foreground', f'Predict-Pycharm-{univariate}-{cut_percent}-{video_name}')
-        video_mask_path = path.join('data', 'masks', f'Pycharm-{univariate}-{cut_percent}-{video_name}')
-        video_mask_pp_path = path.join('data', 'masks', f'Pycharm-{univariate}-{cut_percent}_pp-{video_name}')
-        if path.isfile(video_fg_path) and path.isfile(video_mask_path):
-            continue
-        colored_vid = load_video(video_path=video_path, gray_scale=False)
-        colored_vid = resize(colored_vid, percent=cut_percent, gray_scale=False)
-
-        if univariate:
-            vid = load_video(video_path=video_path, gray_scale=True)
-            vid = resize(vid, percent=cut_percent, gray_scale=True)
-        else:
-            vid = colored_vid.copy()
-
-        v_fg_mask = change_detection(vid, k=4, t=0.7, alpha=2.5, learning_rate=0.05, k_warm_up=1, univariate=univariate,
-                                     model_path=model_path, predict=predict)
-        # save_video(v_fg_mask, video_mask_path, color=False)
-        v_fg_mask_pp = improve_foreground(v_fg_mask)
-        # save_video(v_fg_mask_pp, video_mask_pp_path, color=False)
-        frames_contours = find_contours(v_fg_mask_pp)
-
-        v_fg = recreate_video(orig_vid=colored_vid, v_fg_mask=v_fg_mask_pp)
-        save_video(v_fg, video_fg_path)
-        print(f'Change detection done for video {video_name}')
-        break
