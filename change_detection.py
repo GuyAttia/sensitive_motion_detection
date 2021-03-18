@@ -74,7 +74,7 @@ def find_contours(v_fg_mask):
     """
     frames_contours = {}
     for frame_index, frame in enumerate(v_fg_mask):
-        contours, _ = cv2.findContours(frame, mode=cv2.RETR_EXTERNAL, method=cv2.CHAIN_APPROX_SIMPLE)
+        contours, _, = cv2.findContours(frame, mode=cv2.RETR_EXTERNAL, method=cv2.CHAIN_APPROX_SIMPLE)
         # Find the contour with the largest area
         if contours:
             frames_contours[frame_index] = {}
