@@ -1,18 +1,8 @@
 import numpy as np
 import cv2
 import matplotlib.pyplot as plt
-import glob
 import os
 from os import listdir, path
-
-
-def find_interesting_points(image):
-    """
-    Pass through a Canny edge detector to get a view of all the edges of the object.
-    Using Harris corner detector we will find all the interest points of the edge view.
-    :param image: Input image as a matrix
-    """
-    pass
 
 
 def load_images(images_path, cmap = cv2.IMREAD_COLOR):
@@ -21,11 +11,14 @@ def load_images(images_path, cmap = cv2.IMREAD_COLOR):
     :return: Images as a matrix
     """
     image_list = [cv2.imread(path.join(images_path, img), cmap) for img in listdir(images_path)]
-    # image_list = [cv2.imread(img, cmap) for img in glob.glob(f'{images_path}*.jpg')]
     return image_list
     
     
-def save_images_with_boxes(img, idx, approved_objects, not_approved_objects, detected_objects_location, out_dir = 'data/object_classification/'):
+def save_images_with_boxes(img, idx, approved_objects, not_approved_objects, detected_objects_location,
+                           out_dir='data/object_classification/'):
+    """
+    Set the rectangles in the videos. Set red rectangle for unauthorized objects and blue for authorized
+    """
     image_with_rectangle = img
     for i in range(len(detected_objects_location)):
         if i in approved_objects:
@@ -87,6 +80,9 @@ def save_video(video, output_path, color=True):
 
 
 def save_frames_video(image_folder, out_video_path):
+    """
+    Save the frames of the video
+    """
     images = [img for img in os.listdir(image_folder) if img.endswith(".jpg")]
     frame = cv2.imread(os.path.join(image_folder, images[0]))
     height, width, layers = frame.shape
@@ -98,14 +94,6 @@ def save_frames_video(image_folder, out_video_path):
 
     cv2.destroyAllWindows()
     video.release()
-
-    
-def save_bag_of_interesting_points():
-    pass
-
-
-def load_bag_of_interesting_points():
-    pass
 
 
 def play_video_by_images(video, frame_rate=20):

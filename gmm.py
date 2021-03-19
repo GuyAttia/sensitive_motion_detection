@@ -72,8 +72,8 @@ class KGmm:
     def decide_pixel_mask(self, gauss_index, frame):
         """
         Decide if the pixel value is foreground or background
-        :param gauss_index:
-        :param frame:
+        :param gauss_index: Index of the Gaussian
+        :param frame: Current frame intensity
         :return: 1 for foreground and 0 for background
         """
         gauss_mean = self.mean[gauss_index]
@@ -95,8 +95,8 @@ class KGmm:
         """
         Calculate the probability that the pixel is foreground using the specified Gaussian model inside the GMM.
         :param gauss_index: Index of the Gaussian
-        :param frame:
-        :return:
+        :param frame: Current frame intensity
+        :return: Probability of being background in this Gaussian
         """
         gauss_mean = self.mean[gauss_index]
         gauss_cov = self.cov[gauss_index] if self.cov[gauss_index] != 0 else 1
