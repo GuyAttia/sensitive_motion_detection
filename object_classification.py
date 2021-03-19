@@ -18,15 +18,14 @@ def match_with_approved_objects(num_of_objects, objects_info, approved_object_in
             for approved_obj_idx in range(len(approved_obj['RED'])):
                 if ((red <= (approved_obj["RED"][approved_obj_idx] + 20) and red >= (approved_obj["RED"][approved_obj_idx] - 20)) and \
                     (green <= (approved_obj["GREEN"][approved_obj_idx] + 20) and red >= (approved_obj["GREEN"][approved_obj_idx] - 20)) and \
-                    (blue <= (approved_obj["BLUE"][approved_obj_idx] + 20) and red >= (approved_obj["BLUE"][approved_obj_idx] - 20))):
-                    if (location['grid_size']/2 <= (approved_obj["location"][0]['grid_size'] + 700) and \
-                        location['grid_size']/2 >= (approved_obj["location"][0]['grid_size']  - 700)):
-                        if not obj_idx in approved_objects: approved_objects.append(obj_idx)
-                    elif approved_obj["location"][0]['grid_size'] / 5 < location['grid_size']:
-                        if not obj_idx in not_approved_objects: not_approved_objects.append(obj_idx)
+                    (blue <= (approved_obj["BLUE"][approved_obj_idx] + 20) and red >= (approved_obj["BLUE"][approved_obj_idx] - 20)) and \
+                    (location['grid_size'] <= (approved_obj["location"][0]['grid_size'] + 500) and \
+                     location['grid_size'] >= (approved_obj["location"][0]['grid_size']  - 500))):
+                    if not obj_idx in approved_objects: approved_objects.append(obj_idx)
                 elif approved_obj["location"][0]['grid_size'] / 5 < location['grid_size']:
                     if not obj_idx in not_approved_objects: not_approved_objects.append(obj_idx)
-            
+#                 elif approved_obj["location"][0]['grid_size'] / 5 < location['grid_size']:
+#                     if not obj_idx in not_approved_objects: not_approved_objects.append(obj_idx)
     return approved_objects, not_approved_objects
                     
     
@@ -42,6 +41,8 @@ def get_detected_objects_info(image, detected_objects, image_x_grid, image_y_gri
         for ch_num, channel in enumerate(objects_info):
             if ch_num == 3: break
             if window_size > location[2] or window_size > location[3]:
+                objects_info[channel].append(0)
+            elif image.shape == (location[3], location[2], 3):
                 objects_info[channel].append(0)
             else:
                 objects_info[channel].append(generate_patches_histograms_mean(cropped_object[:,:,ch_num], window_size))
