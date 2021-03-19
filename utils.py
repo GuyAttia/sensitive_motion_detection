@@ -2,6 +2,7 @@ import numpy as np
 import cv2
 import matplotlib.pyplot as plt
 import glob
+import os
 from os import listdir, path
 
 
@@ -24,30 +25,22 @@ def load_images(images_path, cmap = cv2.IMREAD_COLOR):
     return image_list
     
     
-def save_images_with_boxes(img, idx, approved_objects, detected_objects_location, out_dir = 'data/object_classification/'):
+def save_images_with_boxes(img, idx, approved_objects, not_approved_objects, detected_objects_location, out_dir = 'data/object_classification/'):
     image_with_rectangle = img
     for i in range(len(detected_objects_location)):
-        if i in approved_objects:#:f"object{i+1}" in detected_objects[0].keys():
+        if i in approved_objects:
             image_with_rectangle = cv2.rectangle(image_with_rectangle, 
-                                                 (detected_objects_location[f'object{i+1}'][0],detected_objects_location[f'object{i+1}'][2]), 
-                                                 (detected_objects_location[f'object{i+1}'][1],detected_objects_location[f'object{i+1}'][3]), 
+                                                 (detected_objects_location[f'object{i+1}'][0],detected_objects_location[f'object{i+1}'][1]), 
+                                                 (detected_objects_location[f'object{i+1}'][0]+detected_objects_location[f'object{i+1}'][2],detected_objects_location[f'object{i+1}'][1]+detected_objects_location[f'object{i+1}'][3]), 
                                                  (255,0,0), 2)
-        else:
+        elif i in not_approved_objects:
             image_with_rectangle = cv2.rectangle(image_with_rectangle, 
-                                                 (detected_objects_location[f'object{i+1}'][0],detected_objects_location[f'object{i+1}'][2]), 
-                                                 (detected_objects_location[f'object{i+1}'][1],detected_objects_location[f'object{i+1}'][3]), 
+                                                 (detected_objects_location[f'object{i+1}'][0],detected_objects_location[f'object{i+1}'][1]), 
+                                                 (detected_objects_location[f'object{i+1}'][0]+detected_objects_location[f'object{i+1}'][2],detected_objects_location[f'object{i+1}'][1]+detected_objects_location[f'object{i+1}'][3]), 
                                                  (0,0,255), 2)
     cv2.imwrite(f'{out_dir}/detected{idx}.jpg', image_with_rectangle)    
 
-def save_image(image, output_path):
-    """
-    Load image from specified path
-    :param image: Image to save
-    :param output_path: Full path to save the image in (including image name)
-    """
-    pass
-
-
+    
 def load_video(video_path, gray_scale=True):
     """
     Load video from specified path
@@ -93,6 +86,20 @@ def save_video(video, output_path, color=True):
     out.release()
 
 
+def save_frames_video(image_folder, out_video_path):
+    images = [img for img in os.listdir(image_folder) if img.endswith(".jpg")]
+    frame = cv2.imread(os.path.join(image_folder, images[0]))
+    height, width, layers = frame.shape
+
+    video = cv2.VideoWriter(out_video_path, 0, 10, (width,height))
+
+    for image in images:
+        video.write(cv2.imread(os.path.join(image_folder, image)))
+
+    cv2.destroyAllWindows()
+    video.release()
+
+    
 def save_bag_of_interesting_points():
     pass
 
