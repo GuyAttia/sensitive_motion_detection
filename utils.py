@@ -5,15 +5,15 @@ import os
 from os import listdir, path
 
 
-def load_images(images_path, cmap = cv2.IMREAD_COLOR):
+def load_images(images_path, cmap=cv2.IMREAD_COLOR):
     """
     Load images from specified path
     :return: Images as a matrix
     """
     image_list = [cv2.imread(path.join(images_path, img), cmap) for img in listdir(images_path)]
     return image_list
-    
-    
+
+
 def save_images_with_boxes(img, idx, approved_objects, not_approved_objects, detected_objects_location,
                            out_dir='data/object_classification/'):
     """
@@ -22,18 +22,26 @@ def save_images_with_boxes(img, idx, approved_objects, not_approved_objects, det
     image_with_rectangle = img
     for i in range(len(detected_objects_location)):
         if i in approved_objects:
-            image_with_rectangle = cv2.rectangle(image_with_rectangle, 
-                                                 (detected_objects_location[f'object{i+1}'][0],detected_objects_location[f'object{i+1}'][1]), 
-                                                 (detected_objects_location[f'object{i+1}'][0]+detected_objects_location[f'object{i+1}'][2],detected_objects_location[f'object{i+1}'][1]+detected_objects_location[f'object{i+1}'][3]), 
-                                                 (255,0,0), 2)
+            image_with_rectangle = cv2.rectangle(image_with_rectangle,
+                                                 (detected_objects_location[f'object{i + 1}'][0],
+                                                  detected_objects_location[f'object{i + 1}'][1]),
+                                                 (detected_objects_location[f'object{i + 1}'][0] +
+                                                  detected_objects_location[f'object{i + 1}'][2],
+                                                  detected_objects_location[f'object{i + 1}'][1] +
+                                                  detected_objects_location[f'object{i + 1}'][3]),
+                                                 (255, 0, 0), 2)
         elif i in not_approved_objects:
-            image_with_rectangle = cv2.rectangle(image_with_rectangle, 
-                                                 (detected_objects_location[f'object{i+1}'][0],detected_objects_location[f'object{i+1}'][1]), 
-                                                 (detected_objects_location[f'object{i+1}'][0]+detected_objects_location[f'object{i+1}'][2],detected_objects_location[f'object{i+1}'][1]+detected_objects_location[f'object{i+1}'][3]), 
-                                                 (0,0,255), 2)
-    cv2.imwrite(f'{out_dir}/detected{idx}.jpg', image_with_rectangle)    
+            image_with_rectangle = cv2.rectangle(image_with_rectangle,
+                                                 (detected_objects_location[f'object{i + 1}'][0],
+                                                  detected_objects_location[f'object{i + 1}'][1]),
+                                                 (detected_objects_location[f'object{i + 1}'][0] +
+                                                  detected_objects_location[f'object{i + 1}'][2],
+                                                  detected_objects_location[f'object{i + 1}'][1] +
+                                                  detected_objects_location[f'object{i + 1}'][3]),
+                                                 (0, 0, 255), 2)
+    cv2.imwrite(f'{out_dir}/detected{idx}.jpg', image_with_rectangle)
 
-    
+
 def load_video(video_path, gray_scale=True):
     """
     Load video from specified path
@@ -87,7 +95,8 @@ def save_frames_video(image_folder, out_video_path):
     frame = cv2.imread(os.path.join(image_folder, images[0]))
     height, width, layers = frame.shape
 
-    video = cv2.VideoWriter(out_video_path, 0, 10, (width,height))
+    fourcc = cv2.VideoWriter_fourcc(*'MP4V')
+    video = cv2.VideoWriter(out_video_path, fourcc, 10, (width, height))
 
     for image in images:
         video.write(cv2.imread(os.path.join(image_folder, image)))

@@ -2,7 +2,6 @@ import warnings
 import numpy as np
 import pickle
 import multiprocessing as mp
-from os import path
 from scipy.stats import norm, multivariate_normal
 from tqdm import tqdm
 
@@ -15,7 +14,7 @@ class KGmm:
         Initiate K Multivariate Gaussian distributions for a pixel
         :param k: K Gaussian to work with
         :param t: T threshold for choosing B Gaussian's
-        :param alpha: Threshold alpha for deciding if background or foreground (posterior probability to be background)
+        :param alpha: Number of STD's as a threshold to decide if frame is part of the background
         :param learning_rate: Learning rate parameter - how much influence the last frame have
         """
         self.k = k
@@ -116,7 +115,7 @@ class KGmm:
         self.choose_b_gaussian()
 
         # Iterate over the B gaussian and check if one of them is background
-        m = np.zeros(self.k)    # masking array (used for updating weights)
+        m = np.zeros(self.k)  # masking array (used for updating weights)
         predicted_bg = False
 
         for gauss_index in self.b_gaussian:
@@ -126,7 +125,7 @@ class KGmm:
             if m[gauss_index] == 0:
                 predicted_bg = True
                 frame_proba = self.calc_gauss_proba(gauss_index=gauss_index, frame=frame)
-                p = self.learning_rate * frame_proba    # Learning rate
+                p = self.learning_rate * frame_proba  # Learning rate
                 # Update Cov
                 gauss_cov = self.cov[gauss_index]
                 if self.univariate:
@@ -137,7 +136,7 @@ class KGmm:
                 self.cov[gauss_index] = new_cov
                 # Update Mean
                 gauss_mean = self.mean[gauss_index]
-                new_mean = ((1-p) * gauss_mean) + (p * frame)
+                new_mean = ((1 - p) * gauss_mean) + (p * frame)
                 self.mean[gauss_index] = new_mean
                 break
         if predicted_bg:  # Update weights
@@ -215,7 +214,7 @@ class GmmModel:
         Update the GMM model using new frame and return the frame foreground mask
         :param frame: New frame to update the model by
         """
-        pool = mp.Pool(mp.cpu_count()-1)
+        pool = mp.Pool(mp.cpu_count() - 1)
 
         with pool:
             args = [(self.pixels[i][j], frame[i, j]) for i in range(self.x) for j in range(self.y)]
@@ -246,14 +245,9 @@ class GmmModel:
             pickle.dump(self, f)
 
 
-def run_gmm(video, k=4, t=0.5, alpha=2.5, learning_rate=0.01, k_warm_up=20, univariate=True, model_path='model.pickle',
-            predict=False):
-    # Initiate the GMM class
-    if path.isfile(model_path):
-        with open(model_path, 'rb') as f:
-            gmm_model = pickle.load(f)
-            print('GMM Model loaded from a file')
-    else:
+def run_gmm(video, k=4, t=0.5, alpha=2.5, learning_rate=0.01, k_warm_up=20, univariate=True, model_path=None,
+            gmm_model=None, predict=False):
+    if not gmm_model:
         gmm_model = GmmModel(k=k, t=t, alpha=alpha, learning_rate=learning_rate, model_path=model_path,
                              univariate=univariate)
         print('GMM model initialized')
@@ -276,6 +270,7 @@ def run_gmm(video, k=4, t=0.5, alpha=2.5, learning_rate=0.01, k_warm_up=20, univ
         fg_mask_list.append(fg_mask)
     v_fg_mask = np.array(fg_mask_list)
 
-    gmm_model.save_model()
-    print('GMM Model saved to a file')
-    return v_fg_mask
+    if not predict:
+        gmm_model.save_model()
+        print('GMM Model saved to a file')
+    return v_fg_mask, gmm_model

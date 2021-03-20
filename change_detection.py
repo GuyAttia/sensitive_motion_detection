@@ -1,21 +1,6 @@
 import cv2
 import numpy as np
 
-from gmm import run_gmm
-
-
-def change_detection(video, k, t, alpha, learning_rate, k_warm_up=20, univariate=True,
-                     model_path='pycharm_model.pickle', predict=False):
-    """
-    Decide if there was a significant change in the video or not.
-    Combine both algorithms (GMM and Clustering) by giving weights to each one and decide using their
-    combined decision whether there was a change and where. The result of the algorithms will be a binary mask.
-    :return: A binary mask for each frame in the video
-    """
-    v_fg_mask = run_gmm(video, k=k, t=t, alpha=alpha, learning_rate=learning_rate, k_warm_up=k_warm_up,
-                        univariate=univariate, model_path=model_path, predict=predict)
-    return v_fg_mask
-
 
 def improve_foreground(v_fg_mask):
     """
